@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using TareasAPI.Data;
+using TareasAPI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,9 +10,12 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite("Data Source=tareas.db"));
 
 builder.Services.AddHttpClient();
+builder.Services.AddSingleton<SentimientoService>();
 builder.Services.AddControllers();
 
 var app = builder.Build();
+
+app.Services.GetRequiredService<SentimientoService>();
 
 using (var scope = app.Services.CreateScope())
 {
