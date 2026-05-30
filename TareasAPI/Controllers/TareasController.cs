@@ -44,10 +44,10 @@ public class TareasController : ControllerBase
             consulta = consulta.Where(t => t.Prioridad == prioridad);
 
         if (fechaInicio.HasValue)
-            consulta = consulta.Where(t => t.FechaCreacion.Date >= fechaInicio.Value.Date);
+            consulta = consulta.Where(t => t.FechaVencimiento.Date >= fechaInicio.Value.Date);
 
         if (fechaFin.HasValue)
-            consulta = consulta.Where(t => t.FechaCreacion.Date <= fechaFin.Value.Date);
+            consulta = consulta.Where(t => t.FechaVencimiento.Date <= fechaFin.Value.Date);
 
         var tareas = await consulta.ToListAsync();
         return Ok(tareas.Select(t => MapToDto(t)).ToList());
@@ -154,7 +154,7 @@ public class TareaRequest
 {
     public string Titulo { get; set; } = string.Empty;
     public string Descripcion { get; set; } = string.Empty;
-    public string Estado { get; set; } = "Pendiente";
-    public string Prioridad { get; set; } = "Media";
+    public string Estado { get; set; } = string.Empty;
+    public string Prioridad { get; set; } = string.Empty;
     public DateTime FechaVencimiento { get; set; }
 }
