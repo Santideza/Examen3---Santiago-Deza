@@ -1,0 +1,27 @@
+## Build results
+bin/
+obj/
+*.dll
+*.exe
+*.pdb
+
+## Database
+*.db
+*.db-shm
+*.db-wal
+
+## Rider
+.idea/
+*.sln.iml
+
+## VS Code
+.vscode/
+*.code-workspace
+
+## User-specific files
+.DS_Store
+.user
+
+## NuGet
+.nuget/
+packages/
