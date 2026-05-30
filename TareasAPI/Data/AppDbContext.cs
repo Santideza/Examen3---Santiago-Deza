@@ -18,5 +18,7 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<Tarea>().HasKey(t => t.Id);
         modelBuilder.Entity<Tarea>().Property(t => t.Titulo).IsRequired().HasMaxLength(200);
         modelBuilder.Entity<Tarea>().Property(t => t.Descripcion).HasMaxLength(500);
+        modelBuilder.Entity<Tarea>().Property(t => t.Estado).IsRequired().HasMaxLength(20);
+        modelBuilder.Entity<Tarea>().Property(t => t.Prioridad).IsRequired().HasMaxLength(20);
     }
 }

@@ -28,12 +28,11 @@ app.MapGet("/", () => Results.Content("""
         body { font-family: Arial, sans-serif; max-width: 720px; margin: 40px auto; padding: 0 16px; background: #f6f7f9; color: #222; }
         h1 { margin-bottom: 16px; }
         form, li { background: white; border: 1px solid #ddd; border-radius: 8px; padding: 14px; }
-        input, textarea, button { width: 100%; margin-top: 8px; padding: 10px; font: inherit; }
+        input, textarea, select, button { width: 100%; margin-top: 8px; padding: 10px; font: inherit; }
         button { cursor: pointer; border: 0; border-radius: 6px; background: #1769e0; color: white; }
         ul { list-style: none; padding: 0; display: grid; gap: 10px; }
         .fila { display: flex; gap: 8px; align-items: center; }
         .fila button { width: auto; }
-        .hecha { text-decoration: line-through; color: #777; }
     </style>
 </head>
 <body>
@@ -41,6 +40,17 @@ app.MapGet("/", () => Results.Content("""
     <form id="form">
         <input id="titulo" placeholder="Titulo" required>
         <textarea id="descripcion" placeholder="Descripcion"></textarea>
+        <select id="estado">
+            <option>Pendiente</option>
+            <option>EnProceso</option>
+            <option>Completada</option>
+        </select>
+        <select id="prioridad">
+            <option>Baja</option>
+            <option selected>Media</option>
+            <option>Alta</option>
+        </select>
+        <input id="fechaVencimiento" type="date" required>
         <button>Agregar tarea</button>
     </form>
     <ul id="lista"></ul>
@@ -55,11 +65,11 @@ app.MapGet("/", () => Results.Content("""
             lista.innerHTML = tareas.map(t => `
                 <li>
                     <div class="fila">
-                        <input type="checkbox" ${t.completada ? "checked" : ""} onchange="cambiar(${t.id}, this.checked)" style="width:auto">
-                        <strong class="${t.completada ? "hecha" : ""}">${t.titulo}</strong>
+                        <strong>${t.titulo}</strong>
                         <button onclick="eliminar(${t.id})">Eliminar</button>
                     </div>
                     <p>${t.descripcion || ""}</p>
+                    <small>${t.estado} | ${t.prioridad} | vence: ${t.fechaVencimiento.substring(0, 10)}</small>
                 </li>
             `).join("");
         }
@@ -69,20 +79,17 @@ app.MapGet("/", () => Results.Content("""
             await fetch(api, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ titulo: titulo.value, descripcion: descripcion.value })
+                body: JSON.stringify({
+                    titulo: titulo.value,
+                    descripcion: descripcion.value,
+                    estado: estado.value,
+                    prioridad: prioridad.value,
+                    fechaVencimiento: fechaVencimiento.value
+                })
             });
             form.reset();
             cargar();
         });
-
-        async function cambiar(id, completada) {
-            await fetch(`${api}/${id}`, {
-                method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ completada })
-            });
-            cargar();
-        }
 
         async function eliminar(id) {
             await fetch(`${api}/${id}`, { method: "DELETE" });
