@@ -11,6 +11,8 @@ namespace TareasAPI.Controllers;
 public class TareasController : ControllerBase
 {
     private readonly AppDbContext _context;
+    private static readonly string[] EstadosValidos = ["Pendiente", "EnProceso", "Completada"];
+    private static readonly string[] PrioridadesValidas = ["Baja", "Media", "Alta"];
 
     public TareasController(AppDbContext context)
     {
@@ -34,14 +36,20 @@ public class TareasController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<TareaDto>> CreateTarea(CreateTareaRequest request)
+    public async Task<ActionResult<TareaDto>> CreateTarea(TareaRequest request)
     {
+        var error = Validar(request);
+        if (error != null)
+            return BadRequest(error);
+
         var tarea = new Tarea
         {
             Titulo = request.Titulo,
             Descripcion = request.Descripcion,
-            Completada = false,
-            FechaCreacion = DateTime.UtcNow
+            Estado = request.Estado,
+            Prioridad = request.Prioridad,
+            FechaCreacion = DateTime.UtcNow,
+            FechaVencimiento = request.FechaVencimiento
         };
 
         _context.Tareas.Add(tarea);
@@ -51,15 +59,21 @@ public class TareasController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateTarea(int id, UpdateTareaRequest request)
+    public async Task<IActionResult> UpdateTarea(int id, TareaRequest request)
     {
         var tarea = await _context.Tareas.FindAsync(id);
         if (tarea == null)
             return NotFound();
 
-        tarea.Titulo = request.Titulo ?? tarea.Titulo;
-        tarea.Descripcion = request.Descripcion ?? tarea.Descripcion;
-        tarea.Completada = request.Completada ?? tarea.Completada;
+        var error = Validar(request);
+        if (error != null)
+            return BadRequest(error);
+
+        tarea.Titulo = request.Titulo;
+        tarea.Descripcion = request.Descripcion;
+        tarea.Estado = request.Estado;
+        tarea.Prioridad = request.Prioridad;
+        tarea.FechaVencimiento = request.FechaVencimiento;
 
         _context.Tareas.Update(tarea);
         await _context.SaveChangesAsync();
@@ -85,20 +99,35 @@ public class TareasController : ControllerBase
         Id = tarea.Id,
         Titulo = tarea.Titulo,
         Descripcion = tarea.Descripcion,
-        Completada = tarea.Completada,
-        FechaCreacion = tarea.FechaCreacion
+        Estado = tarea.Estado,
+        Prioridad = tarea.Prioridad,
+        FechaCreacion = tarea.FechaCreacion,
+        FechaVencimiento = tarea.FechaVencimiento
     };
+
+    private static string? Validar(TareaRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request.Titulo))
+            return "El titulo es obligatorio";
+
+        if (!EstadosValidos.Contains(request.Estado))
+            return "Estado invalido. Use: Pendiente, EnProceso o Completada";
+
+        if (!PrioridadesValidas.Contains(request.Prioridad))
+            return "Prioridad invalida. Use: Baja, Media o Alta";
+
+        if (request.FechaVencimiento.Date < DateTime.Today)
+            return "La fecha de vencimiento no puede ser pasada";
+
+        return null;
+    }
 }
 
-public class CreateTareaRequest
+public class TareaRequest
 {
     public string Titulo { get; set; } = string.Empty;
     public string Descripcion { get; set; } = string.Empty;
-}
-
-public class UpdateTareaRequest
-{
-    public string? Titulo { get; set; }
-    public string? Descripcion { get; set; }
-    public bool? Completada { get; set; }
+    public string Estado { get; set; } = "Pendiente";
+    public string Prioridad { get; set; } = "Media";
+    public DateTime FechaVencimiento { get; set; }
 }
