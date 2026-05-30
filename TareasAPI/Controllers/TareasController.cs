@@ -20,9 +20,36 @@ public class TareasController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<TareaDto>>> GetTareas()
+    public async Task<ActionResult<List<TareaDto>>> GetTareas(
+        string? estado,
+        string? prioridad,
+        DateTime? fechaInicio,
+        DateTime? fechaFin)
     {
-        var tareas = await _context.Tareas.ToListAsync();
+        if (!string.IsNullOrWhiteSpace(estado) && !EstadosValidos.Contains(estado))
+            return BadRequest("Estado invalido. Use: Pendiente, EnProceso o Completada");
+
+        if (!string.IsNullOrWhiteSpace(prioridad) && !PrioridadesValidas.Contains(prioridad))
+            return BadRequest("Prioridad invalida. Use: Baja, Media o Alta");
+
+        if (fechaInicio.HasValue && fechaFin.HasValue && fechaInicio > fechaFin)
+            return BadRequest("fechaInicio no puede ser mayor que fechaFin");
+
+        var consulta = _context.Tareas.AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(estado))
+            consulta = consulta.Where(t => t.Estado == estado);
+
+        if (!string.IsNullOrWhiteSpace(prioridad))
+            consulta = consulta.Where(t => t.Prioridad == prioridad);
+
+        if (fechaInicio.HasValue)
+            consulta = consulta.Where(t => t.FechaCreacion.Date >= fechaInicio.Value.Date);
+
+        if (fechaFin.HasValue)
+            consulta = consulta.Where(t => t.FechaCreacion.Date <= fechaFin.Value.Date);
+
+        var tareas = await consulta.ToListAsync();
         return Ok(tareas.Select(t => MapToDto(t)).ToList());
     }
 
