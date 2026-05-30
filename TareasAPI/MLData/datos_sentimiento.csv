@@ -1,0 +1,21 @@
+Texto,Etiqueta
+"La tarea fue completada correctamente",true
+"El proyecto avanzo sin problemas",true
+"La entrega fue exitosa",true
+"El equipo termino la tarea a tiempo",true
+"La planificacion del proyecto fue buena",true
+"La funcionalidad quedo estable",true
+"El modulo funciona correctamente",true
+"La tarea se resolvio rapido",true
+"El cliente aprobo el avance",true
+"El proyecto quedo bien organizado",true
+"La tarea fallo varias veces",false
+"El proyecto esta atrasado",false
+"La entrega tuvo muchos errores",false
+"El modulo no funciona",false
+"La tarea quedo incompleta",false
+"El equipo tuvo problemas con el avance",false
+"La implementacion salio mal",false
+"El proyecto tiene muchos bugs",false
+"La funcionalidad esta rota",false
+"La tarea fue rechazada",false

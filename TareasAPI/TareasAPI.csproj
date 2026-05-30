@@ -10,6 +10,11 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.0" />
+    <PackageReference Include="Microsoft.ML" Version="5.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="MLData\datos_sentimiento.csv" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>
